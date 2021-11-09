@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "edge-reverse-tunnel.fullname" . }}
+  labels:
+    {{- include "edge-reverse-tunnel.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "edge-reverse-tunnel.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "edge-reverse-tunnel.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "edge-reverse-tunnel.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-nginx
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "nginx:latest"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+          - name: http
+            containerPort: 80
+            protocol: TCP
+          volumeMounts:
+          - name: nginx-config
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
+            readOnly: true
+        - name: {{ .Chart.Name }}-tunnel
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: USER
+              valueFrom:
+                secretKeyRef:
+                  name: web-server-creds
+                  key: username
+            - name: SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: web-server-creds
+                  key: ip_address
+            - name: BIND_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: edge-tunnel-definition
+                  key: server_port
+            - name: DEST
+              valueFrom:
+                secretKeyRef:
+                  name: edge-tunnel-definition
+                  key: dest
+            - name: DEST_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: edge-tunnel-definition
+                  key: dest_port
+          volumeMounts:
+            - name: ssh-volume
+              readOnly: true
+              mountPath: "/tmp/.ssh"
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: ssh-volume
+          secret:
+            secretName: personal-id-rsa
+        - name: nginx-config
+          configMap:
+            name: nginx.conf
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

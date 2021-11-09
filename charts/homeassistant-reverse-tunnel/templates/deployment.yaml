@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "homeassistant-reverse-tunnel.fullname" . }}
+  labels:
+    {{- include "homeassistant-reverse-tunnel.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "homeassistant-reverse-tunnel.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "homeassistant-reverse-tunnel.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "homeassistant-reverse-tunnel.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: USER
+              valueFrom:
+                secretKeyRef:
+                  name: web-server-creds
+                  key: username
+            - name: SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: web-server-creds
+                  key: ip_address
+            - name: BIND_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: homeassistant-tunnel-definition
+                  key: server_port
+            - name: DEST
+              valueFrom:
+                secretKeyRef:
+                  name: homeassistant-tunnel-definition
+                  key: dest
+            - name: DEST_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: homeassistant-tunnel-definition
+                  key: dest_port
+          volumeMounts:
+            - name: ssh-volume
+              readOnly: true
+              mountPath: "/tmp/.ssh"
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: ssh-volume
+          secret:
+            secretName: personal-id-rsa
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
