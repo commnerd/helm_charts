@@ -1,6 +1,6 @@
 apiVersion: v2
 name: homeassistant-reverse-tunnel
-description: A Helm chart to create a reverse tunnel from my website
+description: A Helm chart to create a reverse tunnel home.michaeljmiller.net to my hassio box
 
 # A chart can be either an 'application' or a 'library' chart.
 #

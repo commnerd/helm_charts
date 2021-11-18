@@ -1,38 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "homeassistant-reverse-tunnel.fullname" . }}
-  labels:
-    {{- include "homeassistant-reverse-tunnel.labels" . | nindent 4 }}
+  name: homeassistant-reverse-tunnel
+  namespace: production
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  replicas: 1
   selector:
     matchLabels:
       {{- include "homeassistant-reverse-tunnel.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
         {{- include "homeassistant-reverse-tunnel.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "homeassistant-reverse-tunnel.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+    spec:
       containers:
         - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "commnerd/edge-reverse-tunnel:{{ .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
           env:
             - name: USER
               valueFrom:
@@ -63,21 +48,15 @@ spec:
             - name: ssh-volume
               readOnly: true
               mountPath: "/tmp/.ssh"
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: https://home.michaeljmiller.net/
+              port: https
+          readinessProbe:
+            httpGet:
+              path: https://home.michaeljmiller.net/
+              port: https
       volumes:
         - name: ssh-volume
           secret:
             secretName: personal-id-rsa
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}

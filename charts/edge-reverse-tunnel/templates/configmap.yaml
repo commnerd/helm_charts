@@ -55,15 +55,15 @@ data:
             listen 80;
             listen [::]:80;
 
-            server_name ~^(?<subdomain>.+)$;
+            server_name ~^(?<subdomain>.+).michaeljmiller.net$;
             access_log /var/log/nginx/$subdomain-access.log;
             error_log /var/log/nginx/$subdomain-error.log;
             proxy_buffering off;
 
             location / {
-                proxy_pass http://$subdomain;
+                proxy_pass http://$subdomain.home;
                 proxy_http_version 1.1;
-                proxy_set_header Host $subdomain;
+                proxy_set_header Host $subdomain.home;
                 proxy_set_header X-Forwarded_For $proxy_add_x_forwarded_for;
                 proxy_set_header Upgrade $http_upgrade;
                 proxy_set_header Connection $connection_upgrade;
