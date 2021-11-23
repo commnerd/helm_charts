@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k3sb-ssh-reverse-tunnel
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "k3sb-ssh-reverse-tunnel.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "k3sb-ssh-reverse-tunnel.selectorLabels" . | nindent 8 }}
+    spec:
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "commnerd/edge-reverse-tunnel:{{ .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: USER
+              valueFrom:
+                secretKeyRef:
+                  name: web-server-creds
+                  key: username
+            - name: SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: web-server-creds
+                  key: ip_address
+            - name: BIND_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: k3sb-ssh-tunnel-definition
+                  key: server_port
+            - name: DEST
+              valueFrom:
+                secretKeyRef:
+                  name: k3sb-ssh-tunnel-definition
+                  key: dest
+            - name: DEST_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: k3sb-ssh-tunnel-definition
+                  key: dest_port
+          volumeMounts:
+            - name: ssh-volume
+              readOnly: true
+              mountPath: "/tmp/.ssh"
+      volumes:
+        - name: ssh-volume
+          secret:
+            secretName: personal-id-rsa
