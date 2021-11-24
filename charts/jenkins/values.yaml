@@ -7,7 +7,7 @@
 # See templates/_helpers.tpl
 # nameOverride:
 # fullnameOverride:
-# namespaceOverride:
+namespaceOverride: "production"
 
 # For FQDN resolving of the controller service. Change this value to match your existing configuration.
 # ref: https://github.com/kubernetes/dns/blob/master/docs/specification.md
@@ -408,17 +408,17 @@ controller:
   updateStrategy: {}
 
   ingress:
-    enabled: false
+    enabled: true
     # Override for the default paths that map requests to the backend
     paths: []
     # - backend:
     #     serviceName: ssl-redirect
     #     servicePort: use-annotation
-    # - backend:
-    #     serviceName: >-
-    #       {{ template "jenkins.fullname" . }}
-    #     # Don't use string here, use only integer value!
-    #     servicePort: 8080
+    - backend:
+        serviceName: >-
+          {{ template "jenkins.fullname" . }}
+        # Don't use string here, use only integer value!
+        servicePort: 8080
     # For Kubernetes v1.14+, use 'networking.k8s.io/v1beta1'
     # For Kubernetes v1.19+, use 'networking.k8s.io/v1'
     apiVersion: "extensions/v1beta1"
@@ -432,7 +432,7 @@ controller:
     # Set this path to jenkinsUriPrefix above or use annotations to rewrite path
     # path: "/jenkins"
     # configures the hostname e.g. jenkins.example.com
-    hostName:
+    hostName: "http://jenkins.production.home"
     tls:
     # - secretName: jenkins.cluster.local
     #   hosts:
@@ -443,7 +443,7 @@ controller:
   # A secondary ingress will let you expose different urls
   # with a differnt configuration
   secondaryingress:
-    enabled: false
+    enabled: true
     # paths you want forwarded to the backend
     # ex /github-webhook
     paths: []
@@ -458,7 +458,7 @@ controller:
     # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
     # ingressClassName: nginx
     # configures the hostname e.g. jenkins-external.example.com
-    hostName:
+    hostName: "http://jenkins.production.home.michaeljmiller.net"
     tls:
     # - secretName: jenkins-external.example.com
     #   hosts:
