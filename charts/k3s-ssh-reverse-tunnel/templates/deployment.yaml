@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: k3s-ssh-reverse-tunnel
-  namespace: {{ .Release.Namespace | default "production" | quote }}
+  namespace: production
 spec:
   replicas: 1
   selector:
