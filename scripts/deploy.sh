@@ -4,7 +4,7 @@ all() {
 	cd ../charts
 	for chart in $(ls)
 	do
-		helm upgrade --install $chart $chart;
+		helm upgrade --install $chart $chart --namespace production;
 	done
 }
 

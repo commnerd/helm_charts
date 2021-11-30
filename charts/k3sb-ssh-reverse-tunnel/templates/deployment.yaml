@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: k3sb-ssh-reverse-tunnel
-  namespace: production
 spec:
   replicas: 1
   selector:
