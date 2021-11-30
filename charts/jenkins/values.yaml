@@ -11,7 +11,7 @@ namespaceOverride: "production"
 
 # For FQDN resolving of the controller service. Change this value to match your existing configuration.
 # ref: https://github.com/kubernetes/dns/blob/master/docs/specification.md
-clusterZone: "cluster.local"
+clusterZone: "jenkins.home"
 
 renderHelmLabels: true
 

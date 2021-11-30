@@ -1,6 +1,0 @@
-dependencies:
-- name: core
-  repository: file://../core
-  version: 1.0.0
-digest: sha256:cba096b29b7ee90875c4004a6c792523796f9788cfff422f43519adebcb638f5
-generated: "2021-11-18T14:11:18.525933864-07:00"

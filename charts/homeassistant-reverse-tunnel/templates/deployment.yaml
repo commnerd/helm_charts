@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: homeassistant-reverse-tunnel
-  namespace: production
+  namespace: {{ .Release.Namespace | default "production" | quote }}
 spec:
   replicas: 1
   selector:

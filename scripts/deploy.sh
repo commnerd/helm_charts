@@ -6,8 +6,7 @@ all() {
 	do
 		if [ $chart != 'core' ]
 		then
-			helm dep build $chart;
-			helm upgrade $chart;
+			helm upgrade --install $chart;
 		fi
 	done
 }
