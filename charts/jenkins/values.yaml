@@ -7,7 +7,7 @@
 # See templates/_helpers.tpl
 # nameOverride:
 # fullnameOverride:
-namespaceOverride: {{ .Release.Namespace | default "production" | quote }}
+namespaceOverride: production
 
 # For FQDN resolving of the controller service. Change this value to match your existing configuration.
 # ref: https://github.com/kubernetes/dns/blob/master/docs/specification.md
@@ -432,7 +432,7 @@ controller:
     # Set this path to jenkinsUriPrefix above or use annotations to rewrite path
     # path: "/jenkins"
     # configures the hostname e.g. jenkins.example.com
-    hostName: "http://jenkins.home"
+    hostName:
     tls:
     # - secretName: jenkins.cluster.local
     #   hosts:
