@@ -27,6 +27,7 @@ spec:
             subPath: nginx.conf
             readOnly: true
         - name: {{ .Chart.Name }}-tunnel
+          image: "commnerd/edge-reverse-tunnel:{{ .Chart.AppVersion }}"
           imagePullPolicy: IfNotPresent
           env:
             - name: USER
