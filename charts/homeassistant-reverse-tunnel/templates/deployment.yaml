@@ -12,7 +12,7 @@ spec:
       labels:
         {{- include "homeassistant-reverse-tunnel.selectorLabels" . | nindent 8 }}
     spec:
-    spec:
+      restartPolicy: Always
       containers:
         - name: {{ .Chart.Name }}
           image: "commnerd/edge-reverse-tunnel:{{ .Chart.AppVersion }}"

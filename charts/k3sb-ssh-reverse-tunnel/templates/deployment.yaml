@@ -12,7 +12,7 @@ spec:
       labels:
         {{- include "k3sb-ssh-reverse-tunnel.selectorLabels" . | nindent 8 }}
     spec:
-    spec:
+      restartPolicy: Always
       containers:
         - name: {{ .Chart.Name }}
           image: "commnerd/edge-reverse-tunnel:{{ .Chart.AppVersion }}"
@@ -43,6 +43,28 @@ spec:
                 secretKeyRef:
                   name: k3sb-ssh-tunnel-definition
                   key: dest_port
+          livenessProbe:
+            exec:
+              command:
+                - ssh
+                - -i
+                - /root/.ssh/id_rsa
+                - ubuntu@${SERVER}
+                - ssh
+                - k3sb
+                - echo
+                - "hello"
+          readinessProbe:
+            exec:
+              command:
+                - ssh
+                - -i
+                - /root/.ssh/id_rsa
+                - ubuntu@${SERVER}
+                - ssh
+                - k3sb
+                - echo
+                - "hello"
           volumeMounts:
             - name: ssh-volume
               readOnly: true
