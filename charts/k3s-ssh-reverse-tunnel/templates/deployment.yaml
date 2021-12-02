@@ -49,6 +49,8 @@ spec:
                 - bash
                 - -c
                 - echo $(ssh -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$(cat /root/server_creds/ip_address) netstat -ltn4 2>&1 | grep $(cat /root/tunnel_def/server_port))
+            timeoutSeconds: 5
+            periodSeconds: 300
           readinessProbe:
             exec:
               command:
