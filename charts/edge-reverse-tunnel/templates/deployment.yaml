@@ -12,6 +12,7 @@ spec:
       labels:
         {{- include "edge-reverse-tunnel.selectorLabels" . | nindent 8 }}
     spec:
+      restartPolicy: Always
       containers:
         - name: {{ .Chart.Name }}-nginx
           image: "nginx:1.21.4"

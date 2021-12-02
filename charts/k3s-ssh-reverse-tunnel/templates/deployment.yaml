@@ -43,33 +43,35 @@ spec:
                 secretKeyRef:
                   name: k3s-ssh-tunnel-definition
                   key: dest_port
+          livenessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - echo $(ssh -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$(cat /root/server_creds/ip_address) netstat -ltn4 2>&1 | grep $(cat /root/tunnel_def/server_port))
+          readinessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - echo $(ssh -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$(cat /root/server_creds/ip_address) netstat -ltn4 2>&1 | grep $(cat /root/tunnel_def/server_port))
           volumeMounts:
             - name: ssh-volume
               readOnly: true
               mountPath: "/tmp/.ssh"
-          livenessProbe:
-            exec:
-              command:
-                - ssh
-                - -i
-                - /root/.ssh/id_rsa
-                - ubuntu@${SERVER}
-                - ssh
-                - k3s
-                - echo
-                - "hello"
-          readinessProbe:
-            exec:
-              command:
-                - ssh
-                - -i
-                - /root/.ssh/id_rsa
-                - ubuntu@${SERVER}
-                - ssh
-                - k3s
-                - echo
-                - "hello"
+            - name: server-secrets
+              readOnly: true
+              mountPath: "/root/server_creds"
+            - name: tunnel-definition
+              readOnly: true
+              mountPath: "/root/tunnel_def"
       volumes:
         - name: ssh-volume
           secret:
             secretName: personal-id-rsa
+        - name: server-secrets
+          secret:
+            secretName: web-server-creds
+        - name: tunnel-definition
+          secret:
+            secretName: k3s-ssh-tunnel-definition
