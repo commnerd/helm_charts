@@ -47,15 +47,31 @@ spec:
             - name: ssh-volume
               readOnly: true
               mountPath: "/tmp/.ssh"
+            - name: server-secrets
+              readOnly: true
+              mountPath: "/root/server_creds"
+            - name: tunnel-definition
+              readOnly: true
+              mountPath: "/root/tunnel_def"
           livenessProbe:
-            httpGet:
-              path: https://home.michaeljmiller.net/
-              port: https
+            exec:
+              command:
+                - bash
+                - -c
+                - echo $(ssh -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$(cat /root/server_creds/ip_address) netstat -ltn4 2>&1 | grep $(cat /root/tunnel_def/server_port))
           readinessProbe:
-            httpGet:
-              path: https://home.michaeljmiller.net/
-              port: https
+            exec:
+              command:
+                - bash
+                - -c
+                - echo $(ssh -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$(cat /root/server_creds/ip_address) netstat -ltn4 2>&1 | grep $(cat /root/tunnel_def/server_port))
       volumes:
         - name: ssh-volume
           secret:
             secretName: personal-id-rsa
+        - name: server-secrets
+          secret:
+            secretName: web-server-creds
+        - name: tunnel-definition
+          secret:
+            secretName: homeassistant-tunnel-definition
