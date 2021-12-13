@@ -1,0 +1,7 @@
+deployment:
+  name: "reverse-tunnel"
+
+secrets:
+  idRsa: "personal-id-rsa"
+  webServerCreds: "web-server-creds"
+  tunnelDefinition: "tunnel-definition"

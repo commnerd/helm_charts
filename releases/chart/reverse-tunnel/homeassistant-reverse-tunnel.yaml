@@ -1,0 +1,7 @@
+deployment:
+  name: "homeassistant-reverse-tunnel"
+
+secrets:
+  idRsa: "personal-id-rsa"
+  webServerCreds: "web-server-creds"
+  tunnelDefinition: "homeassistant-tunnel-definition"
