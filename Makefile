@@ -29,7 +29,7 @@ check_helm:
 
 repo_update: check_git check_helm
 	$(GIT) pull
-	$(GIT) submodule sync --recursive
+	$(GIT) submodule update --recursive
 	$(HELM) repo update
 
 clean:
