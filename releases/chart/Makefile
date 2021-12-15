@@ -1,3 +1,5 @@
+HELM := $(shell which helm)
+
 RELEASES := \
 	$(shell \
 		git diff $$(echo -n $$(git log | grep ^commit | head -n 2 | tac | awk '{ print $$2 }') | sed 's/ /../') | \
@@ -21,9 +23,9 @@ CHART_UPDATES := \
 		uniq \
 	)
 
-.PHONY: deploy releases chart-updates
+.PHONY: default deploy releases chart-updates
 
-default: deploy
+default: test
 
 deploy:
 	@UPDATES="";\
@@ -46,13 +48,19 @@ deploy:
 	UPDATES=$$(echo $$UPDATES | sed 's/ /\n/g' | sort | uniq);\
 	for update in $$UPDATES; do\
 		RELEASE=$$(basename $${update%.*});\
+		LATEST_RELEASE_HASH="$(shell git log $$update | head -n 1 | awk '{print $2}')";\
 		CHART=$$(basename $$(dirname $$update));\
-		ACTION="install";\
-		if [ "$$(helm list | tail -n +2 | awk '{ print $1 }' | grep $$RELEASE)" ]; then\
-			ACTION="upgrade";\
+		LATEST_CHART_HASH=$(shell git log ../../charts/$$CHART | head -n 1 | awk '{print $2}');\
+		LATEST_GIT_HASH=$$(git log | grep '$${LATEST_RELEASE_HASH}\|$${LATEST_CHART_HASH}' | head -n 1 | awk '{print $2}');\
+		CURRENT_RELEASE_HASH=$$(sudo kubectl get deploy $${RELEASE}) -o jsonpath='{.metadata.annotations.git-hash}');\
+		if [ "$${CURRENT_RELEASE_HASH}" != "$${LATEST_GIT_HASH}" ]; then\
+			ACTION="install";\
+			if [ ! "$${CURRENT_RELEASE_HASH}" != "" ]; then\
+				ACTION="upgrade";\
+			fi;\
+			echo "$(HELM) $$ACTION $$RELEASE ../../charts/$$CHART -f $$update";\
+			$(HELM) $$ACTION $$RELEASE ../../charts/$$CHART -f $$update;\
 		fi;\
-		echo "helm $$ACTION $$RELEASE ../../charts/$$CHART -f $$update";\
-		helm $$ACTION $$RELEASE ../../charts/$$CHART -f $$update;\
 	done;
 
 test:
@@ -76,11 +84,21 @@ test:
 	UPDATES=$$(echo $$UPDATES | sed 's/ /\n/g' | sort | uniq);\
 	for update in $$UPDATES; do\
 		RELEASE=$$(basename $${update%.*});\
+		LATEST_RELEASE_HASH="$(shell git log $$update | head -n 1 | awk '{print $2}')";\
 		CHART=$$(basename $$(dirname $$update));\
-		ACTION="install";\
-		if [ "$$(helm list | tail -n +2 | awk '{ print $1 }' | grep $$RELEASE)" ]; then\
-			ACTION="upgrade";\
+		LATEST_CHART_HASH=$(shell git log ../../charts/$$CHART | head -n 1 | awk '{print $2}');\
+		LATEST_GIT_HASH=$$(git log | grep '$${LATEST_RELEASE_HASH}\|$${LATEST_CHART_HASH}' | head -n 1 | awk '{print $2}');\
+		CURRENT_RELEASE_HASH=$$(sudo kubectl get deploy $${RELEASE}) -o jsonpath='{.metadata.annotations.git-hash}');\
+		if [ "$${CURRENT_RELEASE_HASH}" != "$${LATEST_GIT_HASH}" ]; then\
+			ACTION="install";\
+			if [ ! "$${CURRENT_RELEASE_HASH}" != "" ]; then\
+				ACTION="upgrade";\
+			fi;\
+			echo "$(HELM) $$ACTION $$RELEASE ../../charts/$$CHART -f $$update --dry-run --debug";\
+			$(HELM) $$ACTION $$RELEASE ../../charts/$$CHART -f $$update --dry-run --debug;\
 		fi;\
-		echo "helm $$ACTION $$RELEASE ../../charts/$$CHART -f $$update --dry-run --debug";\
-		helm $$ACTION $$RELEASE ../../charts/$$CHART -f $$update --dry-run --debug;\
 	done;
+
+%:
+	@echo "$@ is not defined." 1>&2 \
+	exit 1;

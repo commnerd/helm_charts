@@ -4,11 +4,12 @@ CHARTS := $(shell ls ./charts)
 
 HELM := $(shell which helm)
 GIT := $(shell which git)
+BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 
 default: test
 
 test: repo_update lint
-	$(MAKE) -C releases $(MAKECMDGOALS)
+	$(MAKE) -C releases $@
 
 lint: check_helm
 	@for f in $(CHARTS); \
@@ -28,6 +29,10 @@ check_helm:
 		exit 1;\
 	fi
 
-repo_update: check_git check_helm
-	$(GIT) pull
-	$(HELM) repo update
+repo_update: check_git
+	@if [ "$$($(GIT) branch -a | grep remotes/origin/$(BRANCH))" ]; then\
+		$(GIT) pull;\
+	fi;
+
+%:
+	$(MAKE) -C releases $@
