@@ -1,3 +1,4 @@
 jenkins: "https://charts.jenkins.io/"
 gitlab:  "https://charts.gitlab.io/"
 rancher: "https://releases.rancher.com/server-charts/stable"
+bitnami: "helm repo add bitnami https://charts.bitnami.com/bitnami"
