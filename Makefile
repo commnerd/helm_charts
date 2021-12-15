@@ -1,13 +1,12 @@
 CHARTS := $(shell ls ./charts)
-
-.PHONY: default test deploy lint repo_update $(CHARTS)
-
 HELM := $(shell which helm)
 GIT := $(shell which git)
 
+.PHONY: default test deploy clean lint check_git check_helm repo_update clean $(CHARTS)
+
 default: test
 
-test: repo_update lint
+test deploy: repo_update lint clean
 	$(MAKE) -C releases $(MAKECMDGOALS)
 
 lint: check_helm
@@ -30,4 +29,11 @@ check_helm:
 
 repo_update: check_git check_helm
 	$(GIT) pull
+	$(GIT) submodule sync --recursive
 	$(HELM) repo update
+
+clean:
+	@if [ -d openstack-helm-infra ]; then\
+		rm -fR openstack-helm-infra;\
+	fi
+	$(MAKE) -C releases $(MAKECMDGOALS)
