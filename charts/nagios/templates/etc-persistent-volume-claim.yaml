@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-etc-pvc
+  namespace: default
+spec:
+  accessModes:
+    - {{ .Values.storage.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.etc.claim.size }}
+  storageClassName: local-storage
+  volumeName: {{ .Release.Name }}-usb-stick-etc-pv
