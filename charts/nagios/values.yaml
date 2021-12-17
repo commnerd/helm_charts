@@ -64,13 +64,16 @@ storage:
   accessMode: ReadWriteOnce
   etc:
     volume:
-      size: 1G
-      path: /mnt/sda1/nagios/etc
+      size: 500Mi
+      path: /mnt/fs/nagios/etc
     claim:
       size: 256Mi
   var:
-    volumeSize: 2Gi
-    claimSize: 1Gi
+    volume:
+      size: 1Gi
+      path: /mnt/fs/nagios/var
+    claim:
+      size: 1Gi
     
 nodeSelector: {}
 

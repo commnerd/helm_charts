@@ -25,17 +25,43 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
-        - name: disk-space
+        - name: etc-disk-space
           persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-pvc
+            claimName: {{ .Release.Name }}-etc-pvc
+        - name: var-disk-space
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-var-pvc
+        - name: apache-config
+          configMap:
+            name: {{ include "nagios.fullname" . }}-apache2-configmap
+            items:
+            - key: "default.conf"
+              path: "default.conf"
+            - key: "info.conf"
+              path: "info.conf"
+            - key: "languages.conf"
+              path: "languages.conf"
+            - key: "mpm.conf"
+              path: "mpm.conf"
+            - key: "nagios.conf"
+              path: "nagios.conf"
+            - key: "php7-module.conf"
+              path: "php7-module.conf"
+            - key: "userdir.conf"
+              path: "userdir.conf"
+      restartPolicy: Always
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           volumeMounts:
-          - name: disk-space
-            mountPath: /opt
+          - name: etc-disk-space
+            mountPath: /opt/nagios/etc
+          - name: var-disk-space
+            mountPath: /opt/nagios/var
+          - name: apache-config
+            mountPath: /etc/apache2/conf.d
           ports:
             - name: http
               containerPort: 80

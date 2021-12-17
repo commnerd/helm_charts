@@ -3,10 +3,10 @@ kind: PersistentVolume
 metadata:
   finalizers:
   - kubernetes.io/pv-protection
-  name: {{ .Release.Name }}-usb-stick-var-pv
+  name: {{ include "nagios.fullname" . }}-usb-stick-var-pv
 spec:
   accessModes:
-  - ReadWriteMany
+  - {{ .Values.storage.accessMode }}
   capacity:
     storage: {{ .Values.storage.var.volume.size }}
   local:
