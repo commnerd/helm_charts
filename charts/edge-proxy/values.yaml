@@ -1,0 +1,8 @@
+reverse-tunnel:
+  deployment:
+    name: "edge-proxy-tunnel"
+
+  secrets:
+    idRsa: "personal-id-rsa"
+    webServerCreds: "web-server-creds"
+    tunnelDefinition: "proxy-definition"
