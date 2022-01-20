@@ -1,0 +1,7 @@
+deployment:
+  name: "k3s-cp01-api-reverse-tunnel"
+
+secrets:
+  idRsa: "personal-id-rsa"
+  webServerCreds: "web-server-creds"
+  tunnelDefinition: "k3s-cp01-api-tunnel-definition"
