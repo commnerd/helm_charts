@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config
+data:
+  dns.config: |
+    options {
+      directory "/var/cache/bind";
+      listen-on { 127.0.0.1; };
+      listen-on-v6 { ::1; };
+      allow-recursion {
+        none;
+      };
+      allow-transfer {
+        none;
+      };
+      allow-update {
+        none;
+      };
+    };
+
+    zone "home." {
+      type primary;
+      file "/var/lib/bind/home";
+      notify explicit;
+    };
