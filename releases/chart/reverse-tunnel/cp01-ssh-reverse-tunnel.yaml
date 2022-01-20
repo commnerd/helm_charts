@@ -1,7 +1,7 @@
 deployment:
-  name: "k3sb-ssh-reverse-tunnel"
+  name: "cp01-ssh-reverse-tunnel"
 
 secrets:
   idRsa: "personal-id-rsa"
   webServerCreds: "web-server-creds"
-  tunnelDefinition: "k3sb-ssh-tunnel-definition"
+  tunnelDefinition: "cp01-ssh-tunnel-definition"
