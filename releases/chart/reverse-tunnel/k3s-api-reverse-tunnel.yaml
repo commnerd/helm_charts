@@ -4,4 +4,4 @@ deployment:
 secrets:
   idRsa: "personal-id-rsa"
   webServerCreds: "web-server-creds"
-  tunnelDefinition: "k3s-cp01-api-tunnel-definition"
+  tunnelDefinition: "k3s-api-tunnel-definition"
