@@ -27,24 +27,44 @@ spec:
       serviceAccountName: {{ include "bind9.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: etc-config-volume
+          configMap:
+            name: {{ include "bind9.fullname" . }}-config
+            items:
+            - key: named.conf.local
+              path: named.conf.local
+            - key: zones.home
+              path: zones.home
+        - name: var-lib-bind-config
+          configMap:
+            name: {{ include "bind9.fullname" . }}-config
+            items:
+            - key: db.home
+            - path: db.home
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+          - name: etc-config-volume
+            mountPath: /etc/bind
+          - name: var-lib-bind-config
+            mountPath: /var/lib/bind
           ports:
-            - name: http
-              containerPort: 80
+            - name: bind
+              containerPort: 53
               protocol: TCP
           livenessProbe:
             httpGet:
               path: /
-              port: http
+              port: bind
           readinessProbe:
             httpGet:
               path: /
-              port: http
+              port: bind
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

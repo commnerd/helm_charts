@@ -3,7 +3,9 @@ kind: ConfigMap
 metadata:
   name: {{ include "bind9.fullname" . }}-config
 data:
-  db.home: |
+  named.conf.local: |
+    include "/etc/bind/zones.home";
+  zones.home: |
     options {
       directory "/var/cache/bind";
       listen-on { 127.0.0.1; };
@@ -21,6 +23,17 @@ data:
 
     zone "home." {
       type primary;
-      file "/var/lib/bind/home";
+      file "/var/lib/bind/db.home";
       notify explicit;
     };
+  db.home:
+    ; BIND reverse
+    $TTL	86400
+    @	IN	SOA	home. root.home. (
+                1		; Serial
+          604800		; Refresh
+            86400		; Retry
+          2419200		; Expire
+            86400 )	; Negative Cache TTL
+    ;
+    @	IN	NS	home.
