@@ -1,11 +1,11 @@
-# Default values for bind.
+# Default values for dhcpd.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
 
 image:
-  repository: internetsystemsconsortium/bind9
+  repository: kosdk/dhcpd
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -38,20 +38,20 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 53
+  port: 80
 
 ingress:
-  enabled: true 
+  enabled: false
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+    # kubernetes.io/ingress.class: dhcpd
+    # kubernetes.io/tls-acme: "false"
   hosts:
-    - host: dns.home 
+    - host: dhcpd.home
       paths:
       - path: /
         backend:
-          serviceName: dns.home
-          servicePort: 53
+          serviceName: dhcpd.home
+          servicePort: 68 
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:

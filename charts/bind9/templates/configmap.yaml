@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: config
+  name: {{ include "bind9.fullname" . }}-config
 data:
-  dns.config: |
+  db.home: |
     options {
       directory "/var/cache/bind";
       listen-on { 127.0.0.1; };
