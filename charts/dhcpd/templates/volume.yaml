@@ -8,9 +8,9 @@ spec:
   accessModes:
   - {{ .Values.storage.accessMode }}
   capacity:
-    storage: {{ .Values.storage.etc.volume.size }}
+    storage: {{ .Values.storage.data.volume.size }}
   local:
-    path: {{ .Values.storage.etc.volume.path }}
+    path: {{ .Values.storage.data.volume.path }}
   nodeAffinity:
     required:
       nodeSelectorTerms:

@@ -8,6 +8,6 @@ spec:
     - {{ .Values.storage.accessMode }}
   resources:
     requests:
-      storage: {{ .Values.storage.etc.claim.size }}
+      storage: {{ .Values.storage.data.claim.size }}
   storageClassName: local-storage
   volumeName: {{ include "dhcpd.fullname" . }}-usb-stick-data-pv
