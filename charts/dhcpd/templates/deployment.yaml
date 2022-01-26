@@ -26,12 +26,9 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
-        - name: data-volume
-          configMap:
-            name: {{ include "dhcpd.fullname" . }}-config
-            items:
-            - key: dhcpd.conf
-              path: dhcpd.conf
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: {{ include "dhcpd.fullname" . }}-data-pvc
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
