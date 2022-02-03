@@ -1,7 +1,7 @@
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
-  name: {{ include "dhcpd.fullname" . }}-security-policy
+  name: {{ include "dhcpd.fullname" . }}-pod-security-policy
 spec:
   privileged: true
   hostNetwork: true
