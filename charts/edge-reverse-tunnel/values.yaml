@@ -1,0 +1,5 @@
+reverse-tunnel:
+  secrets:
+    idRsa: "personal-id-rsa"
+    webServerCreds: "web-server-creds"
+    tunnelDefinition: "edge-tunnel-definition"
