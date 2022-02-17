@@ -1,0 +1,63 @@
+# Copyright 2017-present Open Networking Foundation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# helm install dhcpd -n <namespace>
+
+image:
+  repository: 'kosdk/dhcpd'
+  tag: '{{ .Chart.AppVersion }}'
+  pullPolicy: 'Always'
+global:
+  registry: ''
+config: |
+  option domain-name "home";
+  option domain-name-servers ns1.home ns2.home 8.8.8.8 8.8.4.4;
+  default-lease-time 600;
+  max-lease-time 7200;
+
+  ddns-update-style none;
+
+  subnet 10.0.0.0 netmask 255.0.0.0 {
+    range 10.0.0.1 10.255.255.254;
+    option routers 10.1.0.1;
+  }
+
+  host cp01 {
+    hardware ethernet DC:A6:32:E9:C0:63;
+    option host-name "cp01.home"
+    fixed-address 10.1.255.253;
+  }
+
+  host cp02 {
+    hardware ethernet E4:5F:01:5E:A8:AF;
+    option host-name "cp02.home"
+    fixed-address 10.1.255.252;
+  }
+
+  host agt01 {
+    hardware ethernet B8:27:EB:11:EF:2D;
+    option host-name "agt01.home"
+    fixed-address 10.1.255.251;
+  }
+
+  host agt02 {
+    hardware ethernet B8:27:EB:29:60:CF;
+    option host-name "agt02.home"
+    fixed-address 10.1.255.250;
+  }
+
+  host agt03 {
+    hardware ethernet B8:27:EB:0A:D8:7A;
+    option host-name "cp03.home"
+    fixed-address 10.1.255.254;
+  }
