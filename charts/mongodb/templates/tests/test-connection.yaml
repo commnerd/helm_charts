@@ -8,8 +8,8 @@ metadata:
     "helm.sh/hook": test
 spec:
   containers:
-    - name: wget
+    - name: nc
       image: busybox
-      command: ['wget']
-      args: ['{{ include "mongodb.fullname" . }}:{{ .Values.service.port }}']
+      command: ['nc']
+      args: ['-z -v -w1 {{ include "mongodb.fullname" . }} {{ .Values.service.port }}']
   restartPolicy: Never
