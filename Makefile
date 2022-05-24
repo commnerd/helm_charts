@@ -22,7 +22,7 @@ help:
 	@echo "  deploy - Deploy updates"
 
 .PHONY: deploy
-deploy: tool-checks
+deploy: repo-update lint tool-checks
 
 .PHONY: tool-checks
 tool-checks: helm-check git-check
@@ -42,3 +42,17 @@ helm-check:
 		echo "Helm not found."; \
 		exit 1; \
 	fi;
+
+.PHONY: repo-update
+repo_update: check_git
+	@if [ "$$($(GIT) branch -a | grep remotes/origin/$(BRANCH))" ]; \
+	then \
+		$(GIT) pull;\
+	fi;
+
+.PHONY: lint
+lint: check_helm
+	@for f in $(CHARTS); \
+	do \
+		$(HELM) lint ./charts/$${f}; \
+	done;
