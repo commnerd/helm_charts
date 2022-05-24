@@ -1,61 +1,44 @@
-BASE_DIR=$(shell pwd)
-NAMESPACES=$(shell kubectl get namespaces | grep -v NAME | awk '{ print $$1 }')
+BASE_DIR := $(shell pwd)
+CHARTS := $(shell cd $(BASE_DIR)/charts && ls -d */ | sed "s/\///g")
+HELM := $(shell which helm)
+GIT := $(shell which git)
+BRANCH := $(shell $(GIT) rev-parse --abbrev-ref HEAD)
+HASH := $(shell $(GIT) log | grep ^commit | head -n 1 | awk '{ print $$2 }')
+NAMESPACES := $(shell kubectl get namespaces | grep -v NAME | awk '{ print $$1 }')
+DEPLOYMENTS := $(shell helm list | grep -v ^NAME | awk '{ print $$1 }')
+
 DEFINED_NAMESPACES=$(shell cd releases && ls -d *)
 DEFAULT_NAMESPACES=kube-node-lease kube-public kube-system default NAME
 NAMESPACES_TO_KEEP=$(DEFAULT_NAMESPACES) $(DEFINED_NAMESPACES)
 ADD_NAMESPACES=$(filter-out $(NAMESPACES) NAME, $(NAMESPACES_TO_KEEP))
 REMOVE_NAMESPACES=$(filter-out $(NAMESPACES_TO_KEEP), $(NAMESPACES))
 
+.PHONY: help
 help:
 	@echo "Usage:"
 	@echo "  make [{subcommand}...]"
 	@echo ""
 	@echo "subcommands:"
-	@echo "  test - Test update repos"
+	@echo "  deploy - Deploy updates"
 
-.PHONY: add-namespaces
-add-namespaces:
-	@for ns in $(ADD_NAMESPACES); \
-	do \
-		kubectl create namespace $$ns; \
-	done
+.PHONY: deploy
+deploy: tool-checks
 
-.PHONY: remove-namespaces
-remove-namespaces:
-	@for ns in $(REMOVE_NAMESPACES); \
-	do \
-		kubectl delete namespace $$ns; \
-	done
+.PHONY: tool-checks
+tool-checks: helm-check git-check
 
-.PHONY: sync-namespaces
-sync-namespaces: add-namespaces
+.PHONY: git-check
+git-check:
+	@if [ ! "$(GIT)" ]; \
+	then \
+		echo "Git not found."; \
+		exit 1; \
+	fi;
 
-.PHONY: test clean
-test: sync-namespaces test-install
-
-.PHONY: test-install
-test-install:
-	@for ns in $(DEFINED_NAMESPACES); \
-	do \
-		pushd ./releases/$$ns; \
-		if [ -d ./chart ]; \
-		then \
-			cd chart; \
-			for chart in $$(ls -d *);
-			do \
-				pushd $$chart; \
-					for values in $$(ls *.yaml); \
-					do \
-						release=$${values::-5}; \
-						helm install $${release}   \
-					done;
-				popd; \
-			done; \
-		fi \
-		if [ -d ./repo ]; \
-		then \
-			@(MAKE) -c ./repo test \
-		fi \
-	done
-
-clean: remove-namespaces
+.PHONY: helm-check
+helm-check:
+	@if [ ! "$(HELM)" ]; \
+	then \
+		echo "Helm not found."; \
+		exit 1; \
+	fi;
