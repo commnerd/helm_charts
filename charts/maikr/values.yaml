@@ -37,8 +37,12 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: LoadBalancer
-  port: 4200
+  ui:
+    type: LoadBalancer
+    port: 4200
+  srv:
+    type: LoadBalancer
+    port: 3000
 
 ingress:
   enabled: true
@@ -46,8 +50,13 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: maikr
     kubernetes.io/tls-acme: "false"
-  hosts:
+  uiHosts:
     - host: maikr.home.michaeljmiller.net
+      paths:
+        - path: /
+          pathType: Prefix
+  srvHosts:
+    - host: maikr-srv.home.michaeljmiller.net
       paths:
         - path: /
           pathType: Prefix
