@@ -37,12 +37,8 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  ui:
-    type: LoadBalancer
-    port: 4200
-  srv:
-    type: LoadBalancer
-    port: 3000
+  type: LoadBalancer
+  port: 4200
 
 ingress:
   enabled: true
@@ -50,13 +46,8 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: maikr
     kubernetes.io/tls-acme: "false"
-  uiHosts:
+  hosts:
     - host: maikr.home.michaeljmiller.net
-      paths:
-        - path: /
-          pathType: Prefix
-  srvHosts:
-    - host: maikr-srv.home.michaeljmiller.net
       paths:
         - path: /
           pathType: Prefix
@@ -79,10 +70,10 @@ resources: {}
 
 autoscaling:
   enabled: false
-  minReplicas: 1
-  maxReplicas: 100
+  minReplicas: 2
+  maxReplicas: 6
   targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
 
 nodeSelector: {}
 
