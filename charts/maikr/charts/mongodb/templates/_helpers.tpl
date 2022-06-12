@@ -66,3 +66,20 @@ Create the name of the service account to use
 {{ $name := (include "mongodb.fullname" .) }}
 localhost{{- range $i := until $replicaCount }},{{$name}}-{{ $i }}{{- end }}
 {{- end }}
+
+{{- define "mongodb.members_js" -}}
+{{ $replicaCount := .Values.replicaCount | int}}
+{{ $name := (include "mongodb.fullname" .) }}
+{{- range $i := until $replicaCount }},{ _id: {{ $i }}, host: "{{$name}}-{{ $i }}:27017"}{{- end }}
+{{- end }}
+
+{{- define "mongodb.cluster_init_js" -}}
+{{ $name := (include "mongodb.fullname" .) }}
+rs.initiate({ _id :  "{{ $name }}", members: [{{ include "mongodb.members_js" . }}]})
+{{- end }}
+
+
+{{- define "mongodb.cluster_init" -}}
+{{ $name := (include "mongodb.fullname" .) }}
+apt update && apt install -y mongodb-mongosh && mongosh -h {{ $name }}-0 -u user --eval "{{ include "mongodb.cluster_init_js" . }}"
+{{- end }}
