@@ -26,6 +26,7 @@ spec:
       containers:
       - name: {{ include "mongodb.fullname" . }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        command: [ 'bash', '-c', '--replSet "{{ include "mongodb.fullname" . }}" --bind_ip {{ include "mongodb.nodes" . }}' ]
         ports:
         - containerPort: {{ .Values.service.port }}
           name: {{ include "mongodb.fullname" . }}

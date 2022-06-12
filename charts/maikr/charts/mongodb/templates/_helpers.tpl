@@ -60,3 +60,9 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{- define "mongodb.nodes" -}}
+{{ $replicaCount := .Values.replicaCount | int}}
+{{ $name := (include "mongodb.fullname" .) }}
+localhost{{- range $i := until $replicaCount }},{{$name}}-{{ $i }}{{- end }}
+{{- end }}
