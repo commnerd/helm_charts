@@ -81,5 +81,5 @@ rs.initiate({ _id :  "{{ $name }}", members: [{{ include "mongodb.members_js" . 
 
 {{- define "mongodb.cluster_init" -}}
 {{ $name := (include "mongodb.fullname" .) }}
-apt update && apt install -y mongodb-mongosh && mongosh -h {{ $name }}-0 -u user -p pass --eval "{{ include "mongodb.cluster_init_js" . }}"
+apt update && apt install -y mongodb-mongosh && mongosh -u user -p pass --eval "{{ include "mongodb.cluster_init_js" . }}" {{ $name }}:27017/admin
 {{- end }}

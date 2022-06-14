@@ -1,4 +1,4 @@
-current_chart = './charts/maikr/charts/mongodb'
+current_chart = './charts/maikr'
 
 allow_k8s_contexts('k3s-admin')
 

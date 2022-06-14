@@ -33,6 +33,10 @@ spec:
         volumeMounts:
         - name: {{ include "mongodb.fullname" . }}
           mountPath: /usr/share/mongodb/data
+        initContainers:
+        - name: {{ include "mongodb.fullname" . }}-initializer
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: [ 'bash', '-c', '{{ include "mongodb.cluster_init" . }}' ]
   volumeClaimTemplates:
   - metadata:
       name: {{ include "mongodb.fullname" . }}
