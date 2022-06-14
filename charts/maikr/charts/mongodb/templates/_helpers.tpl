@@ -70,7 +70,7 @@ localhost{{- range $i := until $replicaCount }},{{$name}}-{{ $i }}{{- end }}
 {{- define "mongodb.members_js" -}}
 {{ $replicaCount := .Values.replicaCount | int}}
 {{ $name := (include "mongodb.fullname" .) }}
-{{- range $i := until $replicaCount }},{ _id: {{ $i }}, host: "{{$name}}-{{ $i }}:27017"}{{- end }}
+{{- range $i := until $replicaCount }}{{ if gt $i 0}},{{ end }}{ _id: {{ $i }}, host: "{{$name}}-{{ $i }}:27017"}{{- end }}
 {{- end }}
 
 {{- define "mongodb.cluster_init_js" -}}
@@ -81,5 +81,5 @@ rs.initiate({ _id :  "{{ $name }}", members: [{{ include "mongodb.members_js" . 
 
 {{- define "mongodb.cluster_init" -}}
 {{ $name := (include "mongodb.fullname" .) }}
-apt update && apt install -y mongodb-mongosh && mongosh -h {{ $name }}-0 -u user --eval "{{ include "mongodb.cluster_init_js" . }}"
+apt update && apt install -y mongodb-mongosh && mongosh -h {{ $name }}-0 -u user -p pass --eval "{{ include "mongodb.cluster_init_js" . }}"
 {{- end }}
