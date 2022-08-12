@@ -48,7 +48,6 @@ ingress:
   enabled: true
   className: "maikr"
   annotations:
-    kubernetes.io/ingress.class: maikr
     kubernetes.io/tls-acme: "false"
   uiHosts:
     - host: maikr.home.michaeljmiller.net
