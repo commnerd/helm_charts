@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: mongodb
+  repository: mongo
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -39,22 +39,6 @@ securityContext: {}
 service:
   type: LoadBalancer
   port: 27017
-
-ingress:
-  enabled: false
-  className: ""
-  annotations:
-    kubernetes.io/ingress.class: mongodb
-    kubernetes.io/tls-acme: "false"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

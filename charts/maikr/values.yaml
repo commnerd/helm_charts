@@ -47,7 +47,7 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: maikr.local
+    - host: maikr.home.michaeljmiller.net
       paths:
         - path: /
           # pathType: ImplementationSpecific
