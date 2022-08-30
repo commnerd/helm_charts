@@ -1,0 +1,49 @@
+---
+#
+# IMPORTANT NOTE
+#
+# This chart inherits from our common library chart. You can check the default values/options here:
+# https://github.com/nicholaswilde/helm-charts/tree/main/charts/common/values.yaml
+#
+
+image:
+  repository: ghcr.io/linuxserver/code-server
+  pullPolicy: IfNotPresent
+  tag: "version-v3.11.1"
+
+secret:
+  PASSWORD: "abc123"
+  SUDO_PASSWORD: "abc123"
+  # HASHED_PASSWORD
+
+# See more environment variables in the code-server documentation
+# https://github.com/linuxserver/docker-code-server#parameters
+env:
+  TZ: America/Denver
+  # PUID: 1000
+  # PGID: 1000
+  PROXY_DOMAIN: code-server.home.michaeljmiller.net
+
+service:
+  port:
+    port: 8443
+
+ingress:
+  enabled: true
+  hosts:
+  - host: code-server.home.michaeljmiller.net
+    paths:
+    - path: /
+      pathType: Prefix
+
+persistence:
+  config:
+    enabled: true
+    emptyDir: true
+    mountPath: /config
+
+probes:
+  liveness:
+    enabled: true
+  readiness:
+    enabled: true
