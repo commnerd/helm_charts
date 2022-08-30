@@ -5,8 +5,8 @@
 replicaCount: 1
 
 image:
-  repository: commnerd/maikr
-  pullPolicy: Always
+  repository: nginx
+  pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
@@ -37,27 +37,20 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  ui:
-    type: LoadBalancer
-    port: 4200
-  srv:
-    type: LoadBalancer
-    port: 3000
+  type: ClusterIP
+  port: 80
 
 ingress:
   enabled: true
-  className: "maikr"
-  annotations:
-    kubernetes.io/tls-acme: "false"
-  uiHosts:
-    - host: maikr.home.michaeljmiller.net
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: maikr.local
       paths:
         - path: /
-          pathType: Prefix
-  srvHosts:
-    - host: maikr-srv.home.michaeljmiller.net
-      paths:
-        - path: /
+          # pathType: ImplementationSpecific
           pathType: Prefix
   tls: []
   #  - secretName: chart-example-tls

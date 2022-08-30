@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "maikr.fullname" . }}-srv
+  name: {{ include "maikr.fullname" . }}
   labels:
     {{- include "maikr.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.srv.type }}
+  type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.srv.port }}
+    - port: {{ .Values.service.port }}
       targetPort: http
       protocol: TCP
       name: http
