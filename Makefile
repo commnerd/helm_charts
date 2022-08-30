@@ -7,7 +7,7 @@ HASH := $(shell $(GIT) log | grep ^commit | head -n 1 | awk '{ print $$2 }')
 NAMESPACES := $(shell kubectl get namespaces | grep -v NAME | awk '{ print $$1 }')
 DEPLOYMENTS := $(shell helm list | grep -v ^NAME | awk '{ print $$1 }')
 
-DEFINED_NAMESPACES=$(shell cd releases && ls -d *)
+DEFINED_NAMESPACES=$(shell find configs -iregex ".*\.yaml$\" | cut -d"/" -f 5)
 DEFAULT_NAMESPACES=kube-node-lease kube-public kube-system default NAME
 NAMESPACES_TO_KEEP=$(DEFAULT_NAMESPACES) $(DEFINED_NAMESPACES)
 ADD_NAMESPACES=$(filter-out $(NAMESPACES) NAME, $(NAMESPACES_TO_KEEP))
@@ -22,7 +22,17 @@ help:
 	@echo "  deploy - Deploy updates"
 
 .PHONY: deploy
-deploy: repo-update lint tool-checks
+deploy: repo-update lint tool-checks delete-namespaces add-namespaces
+
+.PHONY: delete-namespaces
+delete-namespaces:
+	@echo 'The following name spaces will be deleted...  Implement this command when ALL are ok to remove.'
+	@echo '$(REMOVE_NAMESPACES)'
+
+.PHONY: add-namespaces
+add-namespaces:
+	@echo 'Adding namespaces:'
+	@echo $(NAMESPACES_TO_KEEP)
 
 .PHONY: tool-checks
 tool-checks: helm-check git-check
@@ -44,14 +54,14 @@ helm-check:
 	fi;
 
 .PHONY: repo-update
-repo_update: check_git
+repo_update: git-check
 	@if [ "$$($(GIT) branch -a | grep remotes/origin/$(BRANCH))" ]; \
 	then \
 		$(GIT) pull;\
 	fi;
 
 .PHONY: lint
-lint: check_helm
+lint: helm-check
 	@for f in $(CHARTS); \
 	do \
 		$(HELM) lint ./charts/$${f}; \
