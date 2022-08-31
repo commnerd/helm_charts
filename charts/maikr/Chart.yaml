@@ -25,3 +25,5 @@ appVersion: "latest"
 
 dependencies:
   - name: mongodb
+  - name: maikr-srv
+  - name: maikr-ui
