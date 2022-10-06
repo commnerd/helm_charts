@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "reboot-web-server.fullname" . }}
+spec:
+  schedule: "{{ include "reboot-web-server.schedule" . }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: {{ include "reboot-web-server.fullname" . }}
+            image: busybox:1.28
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - ssh -i /tmp/.ssh/id_rsa ${USER}@${SERVER}
+            env:
+              - name: USER
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.secrets.webServerCreds }}
+                    key: username
+              - name: SERVER
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.secrets.webServerCreds }}
+                    key: ip_address
+            volumeMounts:
+              - name: ssh-volume
+                readOnly: true
+                mountPath: "/tmp/.ssh"
+              - name: server-secrets
+                readOnly: true
+                mountPath: "/root/server_creds"
+          restartPolicy: Never
+          volumes:
+            - name: ssh-volume
+              secret:
+                secretName: {{ .Values.secrets.idRsa }}
+            - name: server-secrets
+              secret:
+                secretName: {{ .Values.secrets.webServerCreds }}
