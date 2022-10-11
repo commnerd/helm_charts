@@ -13,8 +13,6 @@ spec:
             image: busybox:1.28
             imagePullPolicy: IfNotPresent
             command:
-            - /bin/sh
-            - -c
             - ssh -i /tmp/.ssh/id_rsa ${USER}@${SERVER}
             env:
               - name: USER
