@@ -22,7 +22,7 @@ env:
   TZ: America/Denver
   # PUID: 1000
   # PGID: 1000
-  PROXY_DOMAIN: code-server.home.michaeljmiller.net
+  PROXY_DOMAIN: code-server.michaeljmiller.net
 
 service:
   port:
@@ -31,7 +31,7 @@ service:
 ingress:
   enabled: true
   hosts:
-  - host: code-server.home.michaeljmiller.net
+  - host: code-server.michaeljmiller.net
     paths:
     - path: /
       pathType: Prefix
