@@ -1,0 +1,150 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-reverse-tunnel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "edge-reverse-tunnel.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "edge-reverse-tunnel.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: {{ .Chart.Name }}-nginx
+          image: "nginx:1.21.4"
+          imagePullPolicy: IfNotPresent
+          ports:
+          - name: http
+            containerPort: 80
+            protocol: TCP
+          - name: https
+            containerPort: 443
+            protocol: TCP
+          volumeMounts:
+          - name: nginx-config
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
+            readOnly: true
+        - name: {{ .Chart.Name }}-tunnel
+          image: "commnerd/edge-reverse-tunnel:{{ .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: USER
+              valueFrom:
+                secretKeyRef:
+                  name: web-server-creds
+                  key: username
+            - name: SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: web-server-creds
+                  key: ip_address
+            - name: BIND_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: edge-tunnel-definition
+                  key: server_port
+            - name: DEST
+              valueFrom:
+                secretKeyRef:
+                  name: edge-tunnel-definition
+                  key: dest
+            - name: DEST_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: edge-tunnel-definition
+                  key: dest_port
+          livenessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - echo $(ssh -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$(cat /root/server_creds/ip_address) netstat -ltn4 2>&1 | grep $(cat /root/tunnel_def/server_port))
+            timeoutSeconds: 5
+            periodSeconds: 300
+          readinessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - echo $(ssh -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$(cat /root/server_creds/ip_address) netstat -ltn4 2>&1 | grep $(cat /root/tunnel_def/server_port))
+          volumeMounts:
+            - name: ssh-volume
+              readOnly: true
+              mountPath: "/tmp/.ssh"
+            - name: server-secrets
+              readOnly: true
+              mountPath: "/root/server_creds"
+            - name: tunnel-definition
+              readOnly: true
+              mountPath: "/root/tunnel_def"
+        - name: {{ .Chart.Name }}-ssl-tunnel
+          image: "commnerd/edge-reverse-tunnel:{{ .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: USER
+              valueFrom:
+                secretKeyRef:
+                  name: web-server-creds
+                  key: username
+            - name: SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: web-server-creds
+                  key: ip_address
+            - name: BIND_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: edge-ssl-tunnel-definition
+                  key: server_port
+            - name: DEST
+              valueFrom:
+                secretKeyRef:
+                  name: edge-ssl-tunnel-definition
+                  key: dest
+            - name: DEST_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: edge-ssl-tunnel-definition
+                  key: dest_port
+          livenessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - echo $(ssh -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$(cat /root/server_creds/ip_address) netstat -ltn4 2>&1 | grep $(cat /root/tunnel_def/server_port))
+            timeoutSeconds: 5
+            periodSeconds: 300
+          readinessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - echo $(ssh -i /root/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$(cat /root/server_creds/ip_address) netstat -ltn4 2>&1 | grep $(cat /root/tunnel_def/server_port))
+          volumeMounts:
+            - name: ssh-volume
+              readOnly: true
+              mountPath: "/tmp/.ssh"
+            - name: server-secrets
+              readOnly: true
+              mountPath: "/root/server_creds"
+            - name: tunnel-definition
+              readOnly: true
+              mountPath: "/root/tunnel_def"
+      volumes:
+        - name: ssh-volume
+          secret:
+            secretName: personal-id-rsa
+        - name: nginx-config
+          configMap:
+            name: nginx.conf
+        - name: server-secrets
+          secret:
+            secretName: web-server-creds
+        - name: tunnel-definition
+          secret:
+            secretName: edge-ssl-tunnel-definition
